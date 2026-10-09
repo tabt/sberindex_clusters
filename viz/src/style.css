@@ -1,0 +1,524 @@
+/* Цвета заданы ролями в одном месте: светлая и тёмная тема различаются только
+   значениями переменных. Категориальные цвета проверены на различимость при
+   дальтонизме и на контраст к своей поверхности. */
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb;
+  --surface-raised: #ffffff;
+  --border: #e3e2dd;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #85837c;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --edge: #b6b4ac;
+  --node-ring: #fcfcfb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+    --surface: #1a1a19;
+    --surface-raised: #232322;
+    --border: #35342f;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #8d8b80;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --edge: #55544c;
+    --node-ring: #1a1a19;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --surface: #1a1a19;
+  --surface-raised: #232322;
+  --border: #35342f;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #8d8b80;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --edge: #55544c;
+  --node-ring: #1a1a19;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Заголовок столбца с чекбоксами нужен скринридеру, но не нужен глазам */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+  font: 15px/1.55 ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 16px 64px;
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 3.4vw, 34px);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.lede {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--text-secondary);
+}
+
+/* --- плашки с числами --- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 28px 0 20px;
+}
+
+.tile {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+
+.tile b {
+  display: block;
+  font-size: 26px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.tile span {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* --- фигура --- */
+.figure {
+  margin: 0;
+}
+
+.figure-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+figcaption {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  max-width: 62ch;
+}
+
+.controls {
+  display: flex;
+  flex: none;
+  gap: 8px;
+  align-items: stretch;
+}
+
+/* --- поиск --- */
+.search {
+  position: relative;
+}
+
+.search input {
+  width: 200px;
+  height: 100%;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13.5px;
+}
+
+.search input::placeholder {
+  color: var(--text-muted);
+}
+
+.search input:focus-visible {
+  outline: 2px solid var(--series-1);
+  outline-offset: 1px;
+}
+
+.suggestions {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  max-height: 260px;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-raised);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+}
+
+.suggestions li {
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.suggestions li[aria-selected='true'],
+.suggestions li:hover {
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+}
+
+.suggestions em {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-style: normal;
+}
+
+.suggestions .empty {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.modes {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-raised);
+  flex: none;
+}
+
+.modes button {
+  padding: 6px 13px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.modes button[aria-pressed='true'] {
+  background: var(--text-primary);
+  color: var(--surface);
+}
+
+.canvas-wrap {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: min(62vh, 620px);
+  min-height: 380px;
+  cursor: grab;
+  touch-action: none;
+}
+
+canvas.dragging {
+  cursor: grabbing;
+}
+
+.hint {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  pointer-events: none;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  display: none;
+  max-width: 330px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  line-height: 1.4;
+  pointer-events: none;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 18%);
+}
+
+.tooltip strong {
+  display: block;
+  font-weight: 600;
+}
+
+.tooltip em {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-style: normal;
+}
+
+.tooltip .swatch {
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+}
+
+/* Перечисление соседей: мельче остального, чтобы не спорить с названием МО */
+.tooltip .links {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+/* --- таблица типов, она же легенда --- */
+.types {
+  margin-top: 26px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+caption {
+  caption-side: bottom;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+th {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr {
+  cursor: pointer;
+}
+
+td.pick {
+  width: 34px;
+  padding-right: 0;
+}
+
+td.pick input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--text-primary);
+  cursor: pointer;
+  vertical-align: -2px;
+}
+
+tbody tr:hover td {
+  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+}
+
+tbody tr[aria-selected='true'] td {
+  background: color-mix(in srgb, var(--text-primary) 9%, transparent);
+}
+
+tbody tr[data-off='true'] td {
+  color: var(--text-muted);
+}
+
+tbody tr[data-off='true'] .swatch {
+  opacity: 0.35;
+}
+
+.swatch {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 9px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+/* --- черновые названия --- */
+details {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+summary {
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+details dl {
+  margin: 10px 0 0;
+  padding-left: 2px;
+  color: var(--text-muted);
+}
+
+details dt {
+  margin-top: 8px;
+  color: var(--text-secondary);
+}
+
+details dd {
+  margin: 2px 0 0;
+}
+
+/* --- как считается близость --- */
+.method {
+  margin-top: 34px;
+  padding-top: 26px;
+  border-top: 1px solid var(--border);
+}
+
+.method h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.steps {
+  max-width: 76ch;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.steps li {
+  margin-bottom: 11px;
+}
+
+.steps b {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-primary) 7%, transparent);
+  color: var(--text-primary);
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+/* --- диаграмма важности признаков --- */
+.importance {
+  margin-top: 26px;
+}
+
+.importance h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.importance p {
+  margin: 0 0 14px;
+  max-width: 76ch;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.bars {
+  display: grid;
+  grid-template-columns: minmax(140px, 25em) 1fr auto;
+  gap: 5px 10px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.bars span {
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bars i {
+  height: 11px;
+  border-radius: 0 4px 4px 0;
+  background: var(--series-1);
+}
+
+.bars b {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.note {
+  margin: 26px 0 0;
+  max-width: 72ch;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.error {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-secondary);
+}

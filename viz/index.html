@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Сеть муниципальных экономик</title>
+    <meta
+      name="description"
+      content="Сеть экономической близости муниципальных образований России и типы локальных экономик"
+    />
+  </head>
+  <body>
+    <main class="page">
+      <header class="head">
+        <h1>Сеть муниципальных экономик</h1>
+        <p class="lede">
+          Каждая точка — муниципальное образование. Связь означает, что два МО попали друг
+          к другу в число пятнадцати ближайших по экономике: отраслевой структуре, уровню
+          жизни, демографии, положению в пространстве. Цвет — тип, найденный кластеризацией.
+        </p>
+      </header>
+
+      <section class="stats" id="stats" aria-label="Параметры сети"></section>
+
+      <figure class="figure">
+        <div class="figure-head">
+          <figcaption id="caption"></figcaption>
+          <div class="controls">
+            <div class="search">
+              <input
+                type="search"
+                id="search"
+                placeholder="Найти МО"
+                autocomplete="off"
+                aria-label="Поиск муниципального образования"
+                aria-expanded="false"
+                role="combobox"
+                aria-controls="suggestions"
+              />
+              <ul class="suggestions" id="suggestions" role="listbox" hidden></ul>
+            </div>
+            <div class="modes" id="modes" role="group" aria-label="Раскладка"></div>
+          </div>
+        </div>
+        <div class="canvas-wrap" id="canvas-wrap">
+          <canvas id="canvas"></canvas>
+          <div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
+          <p class="hint">колесо — масштаб, перетаскивание — сдвиг</p>
+        </div>
+      </figure>
+
+      <section class="types" aria-label="Типы локальных экономик">
+        <table id="types-table"></table>
+        <details id="drafts">
+          <summary>Черновые названия типов</summary>
+          <dl id="drafts-list"></dl>
+        </details>
+      </section>
+
+      <section class="method" aria-label="Как считается близость">
+        <h2>Как считается близость МО</h2>
+        <ol class="steps">
+          <li>
+            <b>Признаки приводятся к одной шкале.</b> У каждого признака вычитается среднее
+            и результат делится на стандартное отклонение:
+            <code>z = (x − среднее) / отклонение</code>. Без этого площадь в квадратных
+            километрах перевесила бы все доли и коэффициенты просто потому, что числа крупнее.
+          </li>
+          <li>
+            <b>Непохожесть двух МО — евклидово расстояние</b> по всем приведённым признакам:
+            <code>d(i, j) = √Σ(z<sub>i</sub> − z<sub>j</sub>)²</code>. Сумма идёт по всем
+            признакам сразу, и каждый входит с равным весом.
+          </li>
+          <li>
+            <b>Ребро ставится между взаимно ближайшими.</b> Для каждого МО берутся
+            15 ближайших по этому расстоянию; связь появляется, если оба МО попали в список
+            друг друга. Односторонняя близость связи не даёт: у крупного города полтысячи
+            желающих оказаться его соседом, но его собственные пятнадцать ближайших — другие.
+          </li>
+          <li>
+            <b>Остовное дерево добавляет связность.</b> Взаимные соседи оставляют часть МО
+            вообще без рёбер, и граф распадается на десятки кусков. Поэтому к рёбрам
+            добавляется минимальный набор связей, соединяющий всё в один граф.
+          </li>
+          <li>
+            <b>Вес ребра убывает с расстоянием:</b>
+            <code>w = exp(−d² / σ²)</code>, где σ — медиана расстояний до пятнадцати
+            ближайших по всей выборке. Близкие МО получают вес около единицы, дальние —
+            почти ноль, и резкого порога при этом не возникает.
+          </li>
+        </ol>
+        <div id="importance"></div>
+      </section>
+
+      <p class="note" id="note"></p>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
